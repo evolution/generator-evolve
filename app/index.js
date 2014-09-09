@@ -1,88 +1,133 @@
 'use strict';
 
-var async   = require('async');
-var chalk   = require('chalk');
 var latest  = require('github-latest');
 var path    = require('path');
+var request = require('request');
 var util    = require('util');
 var yeoman  = require('yeoman-generator');
+var yosay   = require('yosay');
 
-
-var WordpressGenerator = function(args, options, config) {
-  yeoman.generators.Base.apply(this, arguments);
-};
-
-util.inherits(WordpressGenerator, yeoman.generators.Base);
-
-WordpressGenerator.prototype.getGenesisVersion = function() {
-  if (this.options['genesis-version']) {
-    this.log.info('Defaulting Genesis version to ' + chalk.yellow(this.options['genesis-version']));
-
-    return false;
-  }
-
-  var done = this.async();
-
-  latest('genesis', 'wordpress', function(err, tag) {
-    if (err) {
-      throw err;
+var EvolveGenerator = yeoman.generators.Base.extend({
+  initialize: function() {
+    if (this.args.length) {
+      this.framework = this.args[0];
     }
 
-    this.options['genesis-version'] = tag;
+    if (this.framework && this.framework.indexOf('#') > 0) {
+      this.branch = this.framework.split('#').pop() || 'master';
+    }
+  },
 
-    done();
-  }.bind(this));
-};
-
-WordpressGenerator.prototype.downloadLatest = function() {
-  if (this.options['genesis-path']) {
-    return false;
-  }
-
-  var done = this.async();
-
-  this.log.info('Downloading Genesis WordPress (' + chalk.yellow(this.options['genesis-version']) + ')...');
-
-  this.remote('genesis', 'wordpress', this.options['genesis-version'], function(err, remote) {
-    if (err) {
-      throw err;
+  listFrameworks: function() {
+    if (this.framework) {
+      return false;
     }
 
-    this.options['genesis-path'] = remote.cachePath;
+    var done    = this.async();
+    var options = {
+      url: 'https://api.github.com/orgs/evolution/repos',
+      headers: {
+        'User-Agent': 'evolution/generator-evolve',
+      },
+    };
 
-    done();
-  }.bind(this));
-};
+    request(options, function(err, response, body) {
+      if (err || response.statusCode !== 200) {
+        console.error(response);
 
-WordpressGenerator.prototype.normalizeCachePath = function() {
-  this.options['genesis-path'] = path.normalize(this.options['genesis-path']);
+        throw err;
+      }
 
-  this.log.info('Using Genesis WordPress at ' + chalk.yellow(this.options['genesis-path']) + '...');
-};
+      this.frameworks = JSON.parse(body).map(function(repo) {
+        return repo.name;
+      }).filter(function(name) {
+        return name.match(/^\w+$/);
+      });
 
-WordpressGenerator.prototype.installLatest = function() {
-  var done  = this.async();
-  var cwd   = process.cwd();
+      done();
+    }.bind(this));
+  },
 
-  this.log.info('Installing dependencies...');
+  promptForFramework: function() {
+    if (this.framework || !this.frameworks) {
+      return false;
+    }
 
-  process.chdir(this.options['genesis-path']);
+    if (this.frameworks.length === 1) {
+      this.framework = this.frameworks[0];
 
-  this.npmInstall(this.options['genesis-path'], ['--quiet'], function() {
-    process.chdir(cwd);
-    done();
-  });
-};
+      return true;
+    }
 
-WordpressGenerator.prototype.runLatest = function() {
-  var Genesis = require(this.options['genesis-path']);
-  var options = this.options;
+    var done = this.async();
 
-  options.resolved = require.resolve(this.options['genesis-path']);
+    this.prompt([
+      {
+        type: 'list',
+        name: 'framework',
+        message: 'Select a framework',
+        choices: this.frameworks,
+      }
+    ], function(answers) {
+      this.framework = answers.framework;
+      done();
+    }.bind(this));
+  },
 
-  this.log.info('Running generator...');
+  validateFramework: function() {
+    if (!this.framework) {
+      throw new Error('No Evolution framework selected');
+    }
+  },
 
-  new Genesis(this.args, this.options, this.config).run();
-};
+  getBranch: function() {
+    if (this.branch) {
+      return false;
+    }
 
-module.exports = WordpressGenerator;
+    var done = this.async();
+
+    latest('evolution', this.framework, function(err, tag) {
+      this.branch = tag || 'master'
+      done();
+    }.bind(this));
+  },
+
+  downloadBranch: function() {
+    var done = this.async();
+
+    this.remote('evolution', this.framework, this.branch, function(err, remote) {
+      if (err) {
+        throw err;
+      }
+
+      this.options['framework-path'] = remote.cachePath;
+      done();
+    }.bind(this));
+  },
+
+  normalizeFrameworkPath: function() {
+    this.options['framework-path'] = path.normalize(this.options['framework-path']);
+  },
+
+  installDependencies: function() {
+    var done  = this.async();
+    var cwd   = process.cwd();
+
+    process.chdir(this.options['framework-path']);
+
+    this.npmInstall(this.options['framework-path'], { 'quiet': false }, function() {
+      process.chdir(cwd);
+      done();
+    });
+  },
+
+  runFrameworkGenerator: function() {
+    var Generator = require(this.options['framework-path']);
+    var generator = new Generator(this.args, this.options);
+
+    generator.run();
+  },
+});
+
+module.exports = EvolveGenerator;

@@ -1,21 +1,16 @@
 {
-  "name": "generator-genesis-wordpress",
-  "version": "1.0.3",
-  "homepage": "https://github.com/genesis/generator-wordpress",
+  "name": "generator-evolve",
+  "version": "1.0.0",
+  "homepage": "https://github.com/evolution/generator-evolve",
   "authors": [
     "Eric Clemmons <eric@smarterspam.com>"
   ],
-  "description": "Yeoman generator for Genesis WordPress",
+  "description": "Yeoman generator for Evolution",
   "main": "app/index.js",
   "keywords": [
-    "vagrant",
-    "wordpress",
     "yeoman",
     "generator",
-    "genesis",
-    "deploy",
-    "cap",
-    "capistrano"
+    "evolution"
   ],
   "license": "MIT",
   "ignore": [

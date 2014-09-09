@@ -1,44 +1,38 @@
 {
-  "name": "generator-genesis-wordpress",
-  "version": "1.0.3",
-  "description": "Yeoman generator for Genesis WordPress",
-  "keywords": [
-    "yeoman-generator"
-  ],
-  "homepage": "https://github.com/genesis/generator-wordpress",
-  "bugs": "https://github.com/genesis/generator-wordpress/issues",
+  "name": "generator-evolve",
+  "version": "0.0.0",
+  "description": "Yeoman generator",
+  "license": "MIT",
+  "main": "app/index.js",
+  "repository": "evolution/generator-evolve",
   "author": {
     "name": "Eric Clemmons",
     "email": "eric@smarterspam.com",
     "url": "https://github.com/ericclemmons"
   },
-  "main": "app/index.js",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/genesis/generator-wordpress.git"
+  "engines": {
+    "node": ">=0.10.0"
   },
   "scripts": {
     "test": "mocha"
   },
+  "files": [
+    "app"
+  ],
+  "keywords": [
+    "yeoman-generator"
+  ],
   "dependencies": {
-    "async": "~0.2.9",
-    "chalk": "~0.2.1",
-    "github-latest": "~0.1.2",
-    "yeoman-generator": "~0.13.0"
+    "chalk": "^0.5.0",
+    "github-latest": "^0.1.2",
+    "request": "^2.42.0",
+    "yeoman-generator": "^0.17.0",
+    "yosay": "^0.3.0"
   },
   "devDependencies": {
-    "mocha": "~1.12.0"
+    "mocha": "*"
   },
   "peerDependencies": {
-    "yo": ">=1.0.0-rc.1"
-  },
-  "engines": {
-    "node": ">=0.8.0",
-    "npm": ">=1.2.10"
-  },
-  "licenses": [
-    {
-      "type": "MIT"
-    }
-  ]
+    "yo": ">=1.0.0"
+  }
 }
