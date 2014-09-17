@@ -1,5 +1,6 @@
 'use strict';
 
+var chalk   = require('chalk');
 var latest  = require('github-latest');
 var path    = require('path');
 var request = require('request');
@@ -8,7 +9,7 @@ var yeoman  = require('yeoman-generator');
 var yosay   = require('yosay');
 
 var EvolveGenerator = yeoman.generators.Base.extend({
-  initialize: function() {
+  init: function() {
     if (this.args.length) {
       this.framework = this.args[0];
     }
@@ -80,6 +81,18 @@ var EvolveGenerator = yeoman.generators.Base.extend({
     }
   },
 
+  setProjectName: function() {
+    this.projectName = [
+      chalk.dim('['),
+      chalk.yellow('Evolution'),
+      chalk.white(this.framework[0].toUpperCase() + this.framework.slice(1)),
+      chalk.dim('Generator'),
+      chalk.dim(']'),
+    ].join(' ');
+
+    this.log.info(this.projectName);
+  },
+
   getBranch: function() {
     if (this.branch) {
       return false;
@@ -94,7 +107,15 @@ var EvolveGenerator = yeoman.generators.Base.extend({
   },
 
   downloadBranch: function() {
+    if (this.options['framework-path']) {
+      this.options['dev'] = true;
+
+      return false;
+    }
+
     var done = this.async();
+
+    this.log.info('Downloading', chalk.yellow('evolution') + '/' + chalk.white(this.framework) + '@' + chalk.dim(this.branch));
 
     this.remote('evolution', this.framework, this.branch, function(err, remote) {
       if (err) {
@@ -106,8 +127,10 @@ var EvolveGenerator = yeoman.generators.Base.extend({
     }.bind(this));
   },
 
-  normalizeFrameworkPath: function() {
-    this.options['framework-path'] = path.normalize(this.options['framework-path']);
+  resolveFrameworkPath: function() {
+    this.options['framework-path'] = path.resolve(this.options['framework-path'].split('~').join(process.env.HOME));
+
+    this.log.info('Generator path:', chalk.white(this.options['framework-path']));
   },
 
   installDependencies: function() {
@@ -115,6 +138,8 @@ var EvolveGenerator = yeoman.generators.Base.extend({
     var cwd   = process.cwd();
 
     process.chdir(this.options['framework-path']);
+
+    this.log.info('Installing NPM dependencies...');
 
     this.npmInstall(this.options['framework-path'], { 'quiet': false }, function() {
       process.chdir(cwd);
