@@ -54,12 +54,6 @@ var EvolveGenerator = yeoman.generators.Base.extend({
       return false;
     }
 
-    if (this.frameworks.length === 1) {
-      this.framework = this.frameworks[0];
-
-      return true;
-    }
-
     var done = this.async();
 
     this.prompt([
