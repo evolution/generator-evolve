@@ -141,7 +141,7 @@ var EvolveGenerator = yeoman.generators.Base.extend({
 
     this.log.info('Installing NPM dependencies...');
 
-    this.npmInstall(this.options['framework-path'], { 'quiet': false }, function() {
+    this.npmInstall(this.options['framework-path'], { 'quiet': true }, function() {
       process.chdir(cwd);
       done();
     });
