@@ -102,8 +102,6 @@ var EvolveGenerator = yeoman.generators.Base.extend({
 
   downloadBranch: function() {
     if (this.options['framework-path']) {
-      this.options['dev'] = true;
-
       return false;
     }
 
