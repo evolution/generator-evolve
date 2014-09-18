@@ -34,9 +34,7 @@ var EvolveGenerator = yeoman.generators.Base.extend({
 
     request(options, function(err, response, body) {
       if (err || response.statusCode !== 200) {
-        console.error(response);
-
-        throw err;
+        throw new Error(body);
       }
 
       this.frameworks = JSON.parse(body).map(function(repo) {
