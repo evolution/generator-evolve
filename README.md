@@ -11,6 +11,7 @@ an entry-point to them.*
 ## Installation
 
 ```shell
+$ npm install -g yo
 $ npm install -g generator-evolve
 ```
 
