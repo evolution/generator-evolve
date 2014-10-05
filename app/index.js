@@ -11,11 +11,12 @@ var yosay   = require('yosay');
 var EvolveGenerator = yeoman.generators.Base.extend({
   init: function() {
     if (this.args.length) {
-      this.framework = this.args[0];
-    }
-
-    if (this.framework && this.framework.indexOf('#') > 0) {
-      this.branch = this.framework.split('#').pop() || 'master';
+      if (this.args[0].indexOf('#') > 0) {
+        this.branch     = this.args[0].split('#')[1];
+        this.framework  = this.args[0].split('#')[0];
+      } else {
+        this.framework  = this.args[0];
+      }
     }
   },
 
